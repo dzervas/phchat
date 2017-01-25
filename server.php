@@ -12,10 +12,10 @@ $conf=array("addr"=>"127.0.0.1",
 	"enc"=>false,
 	"buff"=>409600,
 	"port"=>4444, // Port to bind
-	"max"=>20, // Maximum number of
+	"max"=>20, // Maximum number of users
 	"guest"=>true, // Allow guests
-	"active"=>2, // 0=no registration, 1=activation by admin, 2=activation by e-mail, 3=no activation
-	"version"=>"1.03b"
+	"active"=>3, // 0=no registration, 1=activation by admin, 2=activation by e-mail, 3=no activation
+	"version"=>"1.04"
 );
 // Command list
 $cm=array('h'=>"help", // User command list
@@ -36,17 +36,17 @@ $cm=array('h'=>"help", // User command list
 		'u'=>"chusr",
 	)
 );
-$admins=array("admin"); // Administartors' usernames ex. "admin1", "admin2"
+$admins=array("admin", "dzerv"); // Administartors' usernames ex. "admin1", "admin2"
 //	/!\ WARNING /!\		//
 // Be very careful with the administartion list, as the administrators have the permissions
 // 	to delete ban or kick users or even other administartors!
 
-$dbconf=array("type"=>"sqlite",		// "sqlite" for SQLite3 or "mysql" for MySQL DB
+$dbconf=array("type"=>"mysql",		// "sqlite" for SQLite3 or "mysql" for MySQL DB
 	"file"=>"./database.db",	// (SQLite3) Database file ex. "./mydatabase.db"
 	"host"=>"localhost",		// (MySQL) Database host ex. "localhost"
-	"user"=>"brainf",		// (MySQL) Database username ex. "mydatabaseuser"
-	"pass"=>"BRAINF",		// (MySQL) Database password ex. "mydatabasepass"
-	"db"=>"brainf"			// (MySQL) Database name ex. "mydatabase"
+	"user"=>"username",		// (MySQL) Database username ex. "mydatabaseuser"
+	"pass"=>"password",		// (MySQL) Database password ex. "mydatabasepass"
+	"db"=>"database"			// (MySQL) Database name ex. "mydatabase"
 );
 $sql_setup="CREATE TABLE `users` (
 	`user` VARCHAR,
@@ -92,9 +92,10 @@ if ($dbconf["type"]=="mysql") {
 // No timeouts, flush content immediatly
 set_time_limit(0);
 ob_implicit_flush();
-error_reporting(E_ERROR);
+//error_reporting(E_ERROR);
 $key=fue($salt);
 $client=array();
+$read=array();
 
 //	Beggin User Options Catch	//
 $opts=getopt("p:a:egdhs",array("port:","address:","enc","dev","help", "guest", "setup"));
@@ -125,7 +126,7 @@ elseif(isset($opts['s']) || isset($opts["setup"])) $db->query($sql_setup);
 //	Begin Socket Proccessing	//
 $sock=socket_create(AF_INET,SOCK_STREAM,0) or outp("Could not create socket",'e');
 socket_bind($sock,$conf["addr"],$conf["port"]) or outp("Could not bind to socket",'e');
-socket_listen($sock) or outp("Could not set up socket listener",'e');
+socket_listen($sock, 100) or outp("Could not set up socket listener",'e');
 if($conf['enc']==true) outp("Server started at ".$conf["addr"].":".$conf["port"]." encrypted","i");
 else outp("Server started at ".$conf["addr"].":".$conf["port"]." unencrypted","i");
 if($conf['dev']==true) outp("Server in devlopment mode (socket ".$conf["devs"]." will be admin)","i");
@@ -157,7 +158,7 @@ while(true) {
 	for($i=0;$i<$conf['max'];$i++) {
 		if(in_array($client[$i]['sock'],$read)) {
 			if($conf['dev']==true)
-				$usr[$conf["devs"]]="admin";
+				$usr[$conf["devs"]]["name"]="admin";
 			if(isset($usr[$i]["name"])) {
 				$input=socket_cread($client[$i]['sock']);
 				$n=trim($input);
@@ -169,9 +170,9 @@ while(true) {
 			if(!isset($usr[$i]["name"]) || $usr[$i]["name"]=="ERR" || $n==$conf['comm'].$cm['l'] && !isset($login[$i])) {
 				if($conf["guest"]==false || $n==$conf['comm'].$cm['l']) {
 					socket_cwrite($client[$i]['sock'],"Login: ");
-					$login[$i]=socket_cread($client[$i]['sock']);
+					$login[$i]=trim(socket_cread($client[$i]['sock']));
 					socket_cwrite($client[$i]['sock'],"Pass: ");
-					$pass[$i]=socket_cread($client[$i]['sock']);
+					$pass[$i]=trim(socket_cread($client[$i]['sock']));
 
 					if(check($login[$i],$pass[$i],$client[$i]['sock'])!="ERR") {
 						$usr[$i]["name"]=trim(check($login[$i],$pass[$i],$client[$i]['sock']));

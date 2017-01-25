@@ -2,7 +2,7 @@
 // Strip some chars from a string
 function strip($string) {
 	$string=trim($string);
-	$string=mysql_real_escape_string($string);
+	//$string=mysql_real_escape_string($string);
 	$string=str_replace("\n","",$string);
 	$string=str_replace("\r","",$string);
 	return $string;
@@ -28,7 +28,7 @@ function fue($string, $times=NULL) {
 
 // Notification, Server Side (SS)
 function outp($msg,$type) {
-	global $sock;
+	global $sock, $exit;
 
 	if ($type=="i")
 		$msg="[i] ".$msg;
@@ -104,31 +104,41 @@ function newdt($user,$pass,$nuser,$npass,$mode) {
 
 	//	User Panel	//
 	if ($mode=="pass"){
-		if ($npass==NULL) { $err=1; break; }
-		$npass=fue($npass);
-		$db->query($ssql." pass='".$npass."' ".$esql) or $err=1;
+		if ($npass==NULL) $err=1;
+		else {
+			$npass=fue($npass);
+			$db->query($ssql." pass='".$npass."' ".$esql) or $err=1;
+		}
 	}elseif ($mode=="user"){
-		if ($nuser==NULL) { $err=1; break; }
-		$nuser=fue($nuser);
-		$db->query($ssql." user='".$nuser."' ".$esql) or $err=1;
+		if ($nuser==NULL) $err=1;
+		else {
+			$nuser=fue($nuser);
+			$db->query($ssql." user='".$nuser."' ".$esql) or $err=1;
+		}
 
 	//	Admin Panel	//
 	}elseif ($mode=="amake"){
-		if ($npass==NULL || $nuser==NULL) { $err=1; break; }
-		$nuser=fue($nuser);
-		$npass=fue($npass);
-		$db->query("INSERT INTO users (user,pass) VALUES('".$nuser."','".$npass."');") or $err=1;
+		if ($npass==NULL || $nuser==NULL) $err=1;
+		else {
+			$nuser=fue($nuser);
+			$npass=fue($npass);
+			$db->query("INSERT INTO users (user,pass) VALUES('".$nuser."','".$npass."');") or $err=1;
+		}
 	}elseif ($mode=="apass"){
-		if ($user==NULL || $npass==NULL) { $err=1; break; }
-		$npass=fue($npass);
-		$db->query($ssql." pass='".$npass."' WHERE user='".$user."'") or $err=1;
+		if ($user==NULL || $npass==NULL) $err=1;
+		else {
+			$npass=fue($npass);
+			$db->query($ssql." pass='".$npass."' WHERE user='".$user."'") or $err=1;
+		}
 	}elseif ($mode=="auser"){
-		if ($user==NULL || $nuser==NULL) { $err=1; break; }
-		$nuser=fue($nuser);
-		$db->query($ssql." user='".$nuser."' WHERE user='".$user."'") or $err=1;
+		if ($user==NULL || $nuser==NULL) $err=1;
+		else {
+			$nuser=fue($nuser);
+			$db->query($ssql." user='".$nuser."' WHERE user='".$user."'") or $err=1;
+		}
 	}elseif ($mode=="adel"){
-		if ($user==NULL) { $err=1; break; }
-		$db->query("DELETE FROM users WHERE user='".$user."'");
+		if ($user==NULL) $err=1;
+		else $db->query("DELETE FROM users WHERE user='".$user."'");
 	}elseif ($mode=="appr"){
 	/*}else{
 		$nuser=fue($nuser);

@@ -77,9 +77,9 @@
           if(is_resource($this->conn))
 			return true;
 		  // Choose the appropriate connect function
-          if ($this->persist)
-	          $this->conn = @mysql_pconnect($this->host, $this->user, $this->password);
-          else
+          //if ($this->persist)
+			  //$this->conn = @mysql_pconnect($this->host, $this->user, $this->password);
+          //else
 	          $this->conn = @mysql_connect($this->host, $this->user, $this->password);
 
           // Connect to the database server
