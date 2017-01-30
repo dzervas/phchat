@@ -54,16 +54,12 @@ function outp($msg,$type) {
 function check($user,$pass,$socket,$mode="login") {
 	global $db, $usr, $i;
 
-	echo "\ncheck: before $user, $pass\n";
 	$user=trim($user);
 	$pass=fue(trim($pass));
-	echo "\ncheck: after $user, $pass\n";
 
 	if ($mode=="login") {
 		$xuery="SELECT * FROM users WHERE user='".$user."' AND pass='".$pass."' ;";
-		echo $xuery;
 		$check=$db->query($xuery);
-		echo $db->numRows($check);
 		if (!$db->numRows($check)) {
 			outp("Wrong login attempt for user \"".$user."\" from user \"".$usr[$i]["name"]."\"@socket ".$i."!",'x');
 			socket_close($socket);
@@ -83,15 +79,12 @@ function check($user,$pass,$socket,$mode="login") {
 function register($user,$pass,$email){
 	global $conf, $db;
 
-	echo "\nreg: before $user, $pass\n";
 	$user=trim($user);
 	$pass=fue(trim($pass));
 	$email=trim($email);
-	echo "\nreg: after $user, $pass\n";
 
 	if ($conf['active']==3){
 		$sql="INSERT INTO users (user, pass, email, register) VALUES('".$user."', '".$pass."', '".$email."', true)";
-		echo $sql;
 		$db->query($sql);
 		return "Thank you ".$user.", you can now login";
 	}elseif ($conf['active']==0) return "Sorry, but you can't register";
