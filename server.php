@@ -43,17 +43,12 @@ $admins=array("admin", "dzerv"); // Administartors' usernames ex. "admin1", "adm
 
 $dbconf=array("type"=>"mysql",		// "sqlite" for SQLite3 or "mysql" for MySQL DB
 	"file"=>"./database.db",	// (SQLite3) Database file ex. "./mydatabase.db"
-	"host"=>"localhost",		// (MySQL) Database host ex. "localhost"
+	"host"=>"127.0.0.1",		// (MySQL) Database host ex. "localhost"
 	"user"=>"username",		// (MySQL) Database username ex. "mydatabaseuser"
 	"pass"=>"password",		// (MySQL) Database password ex. "mydatabasepass"
 	"db"=>"database"			// (MySQL) Database name ex. "mydatabase"
 );
-$sql_setup="CREATE TABLE `users` (
-	`user` VARCHAR,
-	`pass` VARCHAR,
-	`email` VARCHAR,
-	`register` INT);"
-;
+$sql_setup="CREATE TABLE users (user VARCHAR(100), pass VARCHAR(64), email VARCHAR(100), register INT(1));";
 //	End Configuration		//
 
 //	Begin Help Menu			//
@@ -92,7 +87,6 @@ if ($dbconf["type"]=="mysql") {
 // No timeouts, flush content immediatly
 set_time_limit(0);
 ob_implicit_flush();
-//error_reporting(E_ERROR);
 $key=fue($salt);
 $client=array();
 $read=array();
@@ -170,12 +164,12 @@ while(true) {
 			if(!isset($usr[$i]["name"]) || $usr[$i]["name"]=="ERR" || $n==$conf['comm'].$cm['l'] && !isset($login[$i])) {
 				if($conf["guest"]==false || $n==$conf['comm'].$cm['l']) {
 					socket_cwrite($client[$i]['sock'],"Login: ");
-					$login[$i]=trim(socket_cread($client[$i]['sock']));
+					$login[$i]=socket_cread($client[$i]['sock']);
 					socket_cwrite($client[$i]['sock'],"Pass: ");
-					$pass[$i]=trim(socket_cread($client[$i]['sock']));
+					$pass=socket_cread($client[$i]['sock']);
 
-					if(check($login[$i],$pass[$i],$client[$i]['sock'])!="ERR") {
-						$usr[$i]["name"]=trim(check($login[$i],$pass[$i],$client[$i]['sock']));
+					if(check($login[$i],$pass,$client[$i]['sock'])!="ERR") {
+						$usr[$i]["name"]=check($login[$i],$pass,$client[$i]['sock']);
 						if(doubleu($i)=="ERR") {
 							socket_close($client[$i]['sock']);
 							unset($client[$i]['sock']);

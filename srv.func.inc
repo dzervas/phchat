@@ -54,12 +54,16 @@ function outp($msg,$type) {
 function check($user,$pass,$socket,$mode="login") {
 	global $db, $usr, $i;
 
-	$user1=fue($user);
-	$pass=fue($pass);
+	echo "\ncheck: before $user, $pass\n";
+	$user=trim($user);
+	$pass=fue(trim($pass));
+	echo "\ncheck: after $user, $pass\n";
 
 	if ($mode=="login") {
-		$xuery="SELECT * FROM users WHERE user='".$user1."' AND pass='".$pass."' ;";
+		$xuery="SELECT * FROM users WHERE user='".$user."' AND pass='".$pass."' ;";
+		echo $xuery;
 		$check=$db->query($xuery);
+		echo $db->numRows($check);
 		if (!$db->numRows($check)) {
 			outp("Wrong login attempt for user \"".$user."\" from user \"".$usr[$i]["name"]."\"@socket ".$i."!",'x');
 			socket_close($socket);
@@ -79,13 +83,20 @@ function check($user,$pass,$socket,$mode="login") {
 function register($user,$pass,$email){
 	global $conf, $db;
 
+	echo "\nreg: before $user, $pass\n";
+	$user=trim($user);
+	$pass=fue(trim($pass));
+	$email=trim($email);
+	echo "\nreg: after $user, $pass\n";
+
 	if ($conf['active']==3){
-		$sql="INSERT INTO users (user, pass, email, active) VALUES('".$user."', '".$pass."', '".$email."', true)";
+		$sql="INSERT INTO users (user, pass, email, register) VALUES('".$user."', '".$pass."', '".$email."', true)";
+		echo $sql;
 		$db->query($sql);
 		return "Thank you ".$user.", you can now login";
 	}elseif ($conf['active']==0) return "Sorry, but you can't register";
 	else{
-		$sql="INSERT INTO users (user, pass, email, active) VALUES('".$user."', '".$pass."', false)";
+		$sql="INSERT INTO users (user, pass, email, register) VALUES('".$user."', '".$pass."', false)";
 		$db->query($sql);
 		if ($conf['active']==1) return "You have been successfuly registered,\nbut to be able to login, the admin must activate your account";
 		elseif ($conf['active']==2) return "You have been successfuly registered,\nbut to be able to login, you must activate your account by the e-mail you have been sent";
@@ -95,6 +106,12 @@ function register($user,$pass,$email){
 // Change login data
 function newdt($user,$pass,$nuser,$npass,$mode) {
 	global $db;
+
+	$user=trim($user);
+	$pass=trim($pass);
+	$nuser=trim($nuser);
+	$npass=trim($npass);
+
 	if ($user==NULL || $pass==NULL) return "ERR1";
 	$user=fue($user);
 	$pass=fue($pass);
@@ -182,6 +199,9 @@ function socket_cclose($num, $socket) {
 // Send PM
 function PM($string,$user) {
 	global $conf, $usr, $client;
+
+	$user=trim($user);
+
 	$opt=str_getopts($string,NULL,"PM");
 	$opt["user"]=strip($opt["user"]);
 
@@ -199,6 +219,7 @@ function PM($string,$user) {
 // Check for double login
 function doubleu($user) {
 	global $usr, $conf, $client;
+	$user=trim($user);
 	for ($x=0;$x<$conf['max'];$x++) {
 		if ($usr[$user]==$usr[$x] && $x!=$user){
 			$err=1;

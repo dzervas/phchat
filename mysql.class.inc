@@ -13,13 +13,13 @@
      class DB
      {
         ///Declaration of variables
-        
+
 	var $host = '';
 	var $user = '';
 	var $password = '';
 	var $database = '';
 	var $persistent = false;
-        
+
         var $conn=NULL;
         var $result=false;
         var $fields;
@@ -66,11 +66,11 @@
         }
         function affectedRows() //-- Get number of affected rows in previous operation
         {
-         return @mysql_affected_rows($this->conn);
+         return mysql_affected_rows($this->conn);
         }
         function close()//Close a connection to a  Server
         {
-         return @mysql_close($this->conn);
+         return mysql_close($this->conn);
         }
         function connect() //Open a connection to a Server
         {
@@ -78,9 +78,9 @@
 			return true;
 		  // Choose the appropriate connect function
           //if ($this->persist)
-			  //$this->conn = @mysql_pconnect($this->host, $this->user, $this->password);
+			  //$this->conn = mysql_pconnect($this->host, $this->user, $this->password);
           //else
-	          $this->conn = @mysql_connect($this->host, $this->user, $this->password);
+	          $this->conn = mysql_connect($this->host, $this->user, $this->password);
 
           // Connect to the database server
           if(!is_resource($this->conn))
@@ -93,7 +93,7 @@
         {
           if($dbname=="")
              $dbname=$this->database;
-			return  @mysql_select_db($dbname,$this->conn);
+			return  mysql_select_db($dbname,$this->conn);
         }
         function create_db($dbname="") //Create a database
         {
@@ -117,24 +117,24 @@
         }
         function query($sql = '') //Execute the sql query
         {
-            $this->result = @mysql_query($sql, $this->conn);
+            $this->result = mysql_query($sql, $this->conn);
             return $this->result;
         }
         function numRows($result=null) //Return number of rows in selected table
         {
         	if(!is_resource($result))
         		$result = $this->result;
-            return (@mysql_num_rows($result));
+            return (mysql_num_rows($result));
         }
     	function fieldName($field, $result=null)
         {
         	if(!is_resource($result))
         		$result = $this->result;
-           return (@mysql_field_name($result,$field));
+           return (mysql_field_name($result,$field));
         }
     	function insertID()
         {
-            return (@mysql_insert_id($this->conn));
+            return (mysql_insert_id($this->conn));
         }
 
         function data_seek($arg1,$row=0) ///Move internal result pointer
@@ -154,14 +154,14 @@
         {
         	if(!is_resource($result))
         		$result = $this->result;
-            return (@mysql_fetch_row($result));
+            return (mysql_fetch_row($result));
         }
         
         function fetchObject($result=null)
         {
         	if(!is_resource($result))
         		$result = $this->result;
-            return (@mysql_fetch_object($result));
+            return (mysql_fetch_object($result));
         }
         function fetchArray($arg1=null,$mode=MYSQL_BOTH)
         {
@@ -173,19 +173,19 @@
         	if(!is_resource($arg1) && !is_null($arg1))
         		$mode = $arg1;
         	
-            return (@mysql_fetch_array($result,$mode));
+            return (mysql_fetch_array($result,$mode));
         }
         function fetchAssoc($result=null)
         {
         	if(!is_resource($result))
         		$result = $this->result;
-            return (@mysql_fetch_assoc($result));
+            return (mysql_fetch_assoc($result));
         }
         function freeResult($result=null)
         {
         	if(!is_resource($result))
         		$result = $this->result;
-            return (@mysql_free_result($result));
+            return (mysql_free_result($result));
         }
 		function getSingleResult($sql)
 		{
